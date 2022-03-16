@@ -1,0 +1,8 @@
+name: Bingo
+version: '${project.version}'
+main: kr.cosinea.bingo.Bingo
+authors: [ Cosine_A ]
+description: 빙고 플러그인
+
+commands:
+  빙고:
