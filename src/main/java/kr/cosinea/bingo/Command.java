@@ -8,22 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
-public class Command implements CommandExecutor {
-
-    Map<UUID, UUID> player = new HashMap<>();
-    Map<UUID, Integer> start = new HashMap<>();
-    Map<UUID, Integer> choice = new HashMap<>();
-    Map<UUID, String> question = new HashMap<>();
-    Map<UUID, String> chat = new HashMap<>();
-    Map<UUID, Integer> click = new HashMap<>();
-    Map<UUID, String> invName = new HashMap<>();
-    Map<UUID, Integer[][]> bingo = new HashMap<>();
-    Map<UUID, Integer> bingoCheck = new HashMap<>();
-
+public class Command extends Utils implements CommandExecutor{
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
         Player p = (Player) sender;
@@ -37,10 +23,16 @@ public class Command implements CommandExecutor {
             p.sendMessage(option() + "/빙고 도움말");
             if(p.isOp()) {
                 p.sendMessage(option() + "/빙고 문장추가 [문제]");
+                p.sendMessage(option() + "/빙고 판");
             }
             return false;
         }
         switch (args[0]) {
+            case "판": {
+                Gui gui = new Gui();
+                gui.bingoGui(p);
+                break;
+            }
             case "신청": {
                 if (args.length == 1) {
                     p.sendMessage(option() + "플레이어를 적어주세요.");
@@ -54,9 +46,11 @@ public class Command implements CommandExecutor {
                 else if (player.containsKey(Bukkit.getPlayerExact(args[1]).getUniqueId())) {
                     p.sendMessage(option() + "해당 플레이어가 이미 다른 신청을 보유 중입니다.");
                 }
+                /*
                 else if (args[1].equals(sender.getName())) {
                     p.sendMessage(option() + "본인에게 신청할 수 없습니다.");
                 }
+                 */
                 else if (Bukkit.getPlayerExact(args[1]) != null){
                     Player p2 = Bukkit.getPlayerExact(args[1]);
                     // Map 값 넣기
@@ -163,9 +157,6 @@ public class Command implements CommandExecutor {
                     start.remove(p.getUniqueId());
                     start.remove(player.get(p.getUniqueId()));
 
-                    invName.remove(p.getUniqueId());
-                    invName.remove(player.get(p.getUniqueId()));
-
                     choice.remove(p.getUniqueId());
                     choice.remove(player.get(p.getUniqueId()));
 
@@ -220,32 +211,5 @@ public class Command implements CommandExecutor {
             }
         }
         return true;
-    }
-    String option() {
-        return "§f§l[ §b§l빙고 §f§l]§f§l ";
-    }
-    public void randomChat(Player p, Player p2, Integer random) {
-        // Map에 문제 넣기
-        String str = Bingo.getPlugin(Bingo.class).getConfig().getString(String.valueOf(random));
-        chat.put(p.getUniqueId(), "");
-        chat.put(p2.getUniqueId(), "");
-        question.put(p.getUniqueId(), str);
-        question.put(p2.getUniqueId(), str);
-        // 채팅으로 문제 출력
-        p.sendMessage(option() + "아래 단어를 빠르게 입력하세요!");
-        p.sendMessage(option() + "§6§l " + str);
-        p2.sendMessage(option() + "아래 단어를 빠르게 입력하세요!");
-        p2.sendMessage(option() + "§6§l " + str);
-        // 채팅 체크
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (chat.containsKey(p.getUniqueId())) {
-                    if (chat.containsValue(str)) {
-                        cancel();
-                    }
-                }
-            }
-        }.runTaskTimer(Bingo.getInstance(), 0L, 20L);
     }
 }
